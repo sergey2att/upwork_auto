@@ -22,7 +22,7 @@ class Runner
         combined_pairs.append(Pair.new(s.first, nil))
         raw_pairs.delete(s)
       end
-      compare_same_class_test(raw_pairs, combined_pairs)
+      combine_same_class_tests(raw_pairs, combined_pairs)
       combined_pairs
     end
   end
@@ -36,7 +36,7 @@ class Runner
   # Takes params like Pair(Class1,method1), Pair(Class1,method2)
   # And transform to Pair(Class1, method1,method2)
   #
-  def self.compare_same_class_test(current_array, result)
+  def self.combine_same_class_tests(current_array, result)
 
     return result if current_array.empty?
 
@@ -48,7 +48,7 @@ class Runner
     end
     result.append(Pair.new(first_param, methods.join(',')))
     # Recursion here
-    compare_same_class_test(current_array, result)
+    combine_same_class_tests(current_array, result)
   end
 end
 
