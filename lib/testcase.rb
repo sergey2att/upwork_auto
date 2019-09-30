@@ -3,7 +3,7 @@
 require 'selenium-webdriver'
 require_relative '../config_manager'
 #
-# Base class for tests scenarios
+# Base class for test scenarios
 #
 class TestCase
   attr_accessor :driver
@@ -32,7 +32,7 @@ class TestCase
 
   private
 
-  # let's open new tab and close other before each test execution
+  # let's open new tab and close other before each test run
   def prepare_browser
     handles = @driver.window_handles.map(&:to_s)
     @driver.execute_script "window.open('','_blank');"

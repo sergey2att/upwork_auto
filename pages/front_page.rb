@@ -10,7 +10,7 @@ class FrontPage < BasePage
 
   SEARCH_BOX = { name: 'q' }.freeze
 
-  # TODO: mast be move to separate module 'Header' for reusing on any page
+  # TODO: must be move to separate module 'Header' for reusing on any page
   def search_for(search_type, search_term)
     find_last(SEARCH_BOX).send_keys ''
     find_last(css: '.dropdown-toggle.btn.p-xs-left-right').click
