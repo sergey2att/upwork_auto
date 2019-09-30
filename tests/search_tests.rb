@@ -96,7 +96,7 @@ class SearchTest < TestCase
 
   private
 
-  # All checks must be done in search classes. We must not use pages for it
+  # All checks must be done in test case classes. We must not use pages for it
   def verify_search_profile_contains(profiles, keyword)
     keyword = keyword.strip.downcase
     markers = []
