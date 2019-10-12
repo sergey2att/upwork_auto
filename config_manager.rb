@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'yaml'
 require 'logger'
 
 #
@@ -8,10 +7,15 @@ require 'logger'
 #
 class ConfigManager
 
-  @@config_path = 'config.yml'
+  @@config_path = 'config.properties'
   @@test_data_path = 'test_data/input_data.csv'
 
-  def self.config_path
+  def initialize
+    @logger = SimpleLog.new
+    @logger.progname = 'Auto: Configuration'
+  end
+
+  def self.base_config_path
     @@config_path
   end
 
@@ -19,34 +23,43 @@ class ConfigManager
     @@test_data_path
   end
 
-  def self.read(config_path, param_names)
-    logger = Logger.new(STDOUT)
-    logger.progname = 'Auto: Configuration'
-    apply_default_logger_format logger
+  @@shared = ConfigManager.new
+
+  def self.shared
+    @@shared
+  end
+
+  private_class_method :new
+
+  def read(path, param)
     begin
-    result = YAML.load_file(config_path)
+    result = read0(path)
     rescue => e
-    logger.error { "Can't read config file #{config_path}" }
-    logger.error e
-    logger.error e.backtrace.join("\n")
+    @logger.error("Can't read config file #{path}")
+    @logger.error e
+    @logger.error e.backtrace.join("\n")
     raise e
     end
-    param_names.each do |param|
-      result = result[param]
-      if result.nil?
-        logger.error { "#{param} was not set" }
-        raise StandardError, "#{param} was not set"
-      end
+    result = result.select { |v| v.first == param }
+    Asserts.assert_true("Find param #{param} in #{result}") { result.count == 1 }
+    result = result.first.last
+    if result.nil?
+      @logger.error("#{param} was not set")
+      raise StandardError, "#{param} was not set"
     end
     result
   end
 
-  def self.apply_default_logger_format(logger)
-    logger.formatter = proc do |severity, datetime, progname, msg|
-      date_format = datetime.strftime("%Y-%m-%d %H:%M:%S")
-      "#{date_format} #{severity} #{progname}: #{msg}\n"
+
+  private
+
+  def read0(path, separator = '=')
+    result = []
+    File.open(path, 'r') do |f|
+      f.each_line do |line|
+        result.append(Pair.new(line.split(separator).map {|v| v.strip }))
+      end
     end
+    result
   end
-
-
 end

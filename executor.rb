@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'csv'
-require 'yaml'
+require_relative 'utils/csv_reader'
+require_relative 'utils/logger'
 require_relative 'lib/statistic'
 require_relative 'lib/browser'
 require_relative 'config_manager'
@@ -16,16 +16,16 @@ class Executor
   def initialize(args)
     @args = args
     @statistic = StatCollector.new
-    @logger = Logger.new(STDOUT)
+    @logger = SimpleLog.new
     @logger.progname = 'UI_Auto: Executor'
-    ConfigManager.apply_default_logger_format @logger
-    Selenium::WebDriver.logger.level = ConfigManager.read(ConfigManager.config_path, %w[driver log_level])
+    Selenium::WebDriver.logger.level = ConfigManager.shared.read(ConfigManager.base_config_path, 'log_level')
   end
 
   # tests execution logic
   def execute(obj, method, method_args = nil)
+    begin
     if obj.respond_to? method
-      @logger.info { "Test '#{obj.class.name}##{method}' starts successfully" }
+      @logger.info("Test '#{obj.class.name}##{method}' starts successfully")
       # before each test action
       obj.setup
       if method_args.nil?
@@ -36,16 +36,17 @@ class Executor
       # after each test action
       obj.teardown
       @statistic.passed += 1
-      @logger.info { "Test '#{obj.class.name}##{method}' passed" }
+      @logger.info("Test '#{obj.class.name}##{method}' passed")
     else
       @statistic.skipped += 1
-      @logger.info { "Test '#{obj.class.name}##{method}' skipped" }
+      @logger.info("Test '#{obj.class.name}##{method}' skipped")
     end
-  rescue => e
-    @logger.info { "Test '#{obj.class.name}##{method}' failed" }
+    rescue => e
+    @logger.info("Test '#{obj.class.name}##{method}' failed")
     @logger.error e
     @logger.error e.backtrace.join("\n")
     @statistic.failed += 1
+    end
   end
 
   # entry point method
@@ -68,9 +69,9 @@ class Executor
           execute(obj, method_name, nil)
         end
       end
-      @logger.info "Result: passed - #{@statistic.passed}, " \
+      @logger.info("Result: passed - #{@statistic.passed}, " \
                    "failed - #{@statistic.failed}, " \
-                   "skipped - #{@statistic.skipped}"
+                   "skipped - #{@statistic.skipped}")
       # after class action
       obj.after_class
     end
@@ -79,13 +80,13 @@ class Executor
   private
 
   def prepare_driver
-    browser = ConfigManager.read(ConfigManager.config_path, %w[driver browser])
-    driver_path = ConfigManager.read(ConfigManager.config_path, %w[driver driver_path])
+    browser = ConfigManager.shared.read(ConfigManager.base_config_path, 'driver.browser')
+    driver_path = ConfigManager.shared.read(ConfigManager.base_config_path, 'driver.path')
     Browser.new(browser, [], DriverListener.new, driver_path).driver
   end
 
   def prepare_test_data(test_case)
-    CSV.read(ConfigManager.test_data_path, headers: true)
+    CSVReader.new.read(ConfigManager.test_data_path)
        .filter { |a| a['id'] == test_case }
        .map { |v| v['args'] }
   end

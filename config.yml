@@ -1,6 +1,0 @@
-base_url: https://www.upwork.com/
-driver:
-  browser: firefox
-  driver_path: /Users/silchenko/Desktop/geckodriver
-  log_level: debug
-  implicit_wait: 5

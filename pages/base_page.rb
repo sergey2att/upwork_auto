@@ -10,13 +10,10 @@ class BasePage
 
   def initialize(driver)
     @driver = driver
-    @logger = Logger.new(STDOUT)
-    @logger.progname = 'UI_Auto: Driver'
-    ConfigManager.apply_default_logger_format @logger
   end
 
   def load(path)
-    @driver.get(ConfigManager.read(ConfigManager.config_path, ['base_url']) + path)
+    driver.get(ConfigManager.shared.read(ConfigManager.base_config_path, 'base_url') + path)
   end
 
   def wait_until(seconds = 5)
@@ -24,18 +21,18 @@ class BasePage
   end
 
   def find_last(locator)
-    wait_until { @driver.find_elements(locator) }.last
+    wait_until { driver.find_elements(locator) }.last
   end
 
   def title
-    wait_until { @driver.title }
+    wait_until { driver.title }
   end
 
   def scroll_to_element
     script_string = 'var viewPortHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);' \
                     'var elementTop = arguments[0].getBoundingClientRect().top;' \
                     'window.scrollBy(0, elementTop-(viewPortHeight/2));'
-    @driver.execute_script(script_string, yield)
+    driver.execute_script(script_string, yield)
   end
 
   def scroll_and_click

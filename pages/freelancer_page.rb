@@ -5,7 +5,6 @@
 #
 class FreelancerPage < BasePage
 
-
   def name
     page.find_element(css: 'h2.m-xs-bottom').text
   end
@@ -105,7 +104,7 @@ class FreelancerPage < BasePage
   end
 
   def page
-    @driver.find_element(id: 'oProfilePage')
+    driver.find_element(id: 'oProfilePage')
   end
 
 end

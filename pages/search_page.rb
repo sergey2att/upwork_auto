@@ -11,7 +11,7 @@ class SearchPage < BasePage
   def apply_filter(type, name)
     filter_button.click
     sleep 1
-    radio_type = @driver.find_element(tag_name: 'freelancer-facet-search')
+    radio_type = driver.find_element(tag_name: 'freelancer-facet-search')
                         .find_elements(tag_name: 'facet-input-radio-list')
                         .select { |v| v.attribute('data-label') == type }.first
     radio = radio_type.find_elements(tag_name: 'label')
@@ -24,14 +24,14 @@ class SearchPage < BasePage
   end
 
   def filter_button
-    result = @driver.find_element(css: 'div.filters-button')
+    result = driver.find_element(css: 'div.filters-button')
     scroll_to_element { result }
     result
   end
 
   def collect_freelancers
     profiles = {}
-    results = @driver.find_element(id: 'oContractorResults')
+    results = driver.find_element(id: 'oContractorResults')
     results.find_elements(tag_name: 'article').each do |article|
       skills = collect_skills(article)
       specialization_line = element_text_or_empty do

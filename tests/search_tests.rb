@@ -8,7 +8,7 @@ require_relative '../lib/asserts'
 
 #
 # Class for search tests
-# Each test mast start from 'test_' prefix
+# Each test must start from 'test_' prefix
 # It will be a good practise to set default test arguments if they exist
 
 class SearchTest < TestCase
@@ -18,9 +18,8 @@ class SearchTest < TestCase
     @front_page = FrontPage.new(@driver)
     @search_page = SearchPage.new(@driver)
     @freelancer_page = FreelancerPage.new(@driver)
-    @logger = Logger.new(STDOUT)
+    @logger = SimpleLog.new
     @logger.progname = 'UI_Auto:'
-    ConfigManager.apply_default_logger_format @logger
   end
 
   # Test case title here. Also annotation logic can be implemented for
@@ -85,7 +84,7 @@ class SearchTest < TestCase
 
   # test example
   def test_2
-    Asserts.assert_false { true }
+    Asserts.assert_false { false }
   end
 
   # test example
@@ -109,9 +108,7 @@ class SearchTest < TestCase
           profile_param = param.nil? ? '' : param.to_s.downcase
           result = profile_param.include? keyword
           markers.append result
-          @logger.warn do
-            "Keyword '#{keyword}' is#{result ? '' : ' not'} included in param '#{pk}' => '#{profile_param}'"
-          end
+          @logger.warning("Keyword '#{keyword}' is#{result ? '' : ' not'} included in param '#{pk}' => '#{profile_param}'")
         end
       end
     end
@@ -126,17 +123,13 @@ class SearchTest < TestCase
           skill[sk].each do |tag|
             result = tag.downcase.include? keyword
             skill_markers.append result
-            @logger.warn do
-              "Keyword '#{keyword}' #{result ? '' : 'is not'} included in param '#{sk}' => '#{tag.downcase}'"
-            end
+            @logger.warning("Keyword '#{keyword}' #{result ? '' : 'is not'} included in param '#{sk}' => '#{tag.downcase}'")
           end
         else
           skills_group = skill[sk].empty? ? '' : skill[sk].downcase.delete_suffix("-").strip
           result = skills_group.include? keyword
           skill_markers.append result
-          @logger.warn do
-            "Keyword '#{keyword}' #{result ? '' : 'is not'} included in param '#{sk}' => '#{skills_group}'"
-          end
+          @logger.warning("Keyword '#{keyword}' #{result ? '' : 'is not'} included in param '#{sk}' => '#{skills_group}'")
         end
       end
     end
