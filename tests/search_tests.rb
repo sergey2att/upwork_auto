@@ -66,7 +66,7 @@ class SearchTest < TestCase
     end
     Asserts.assert_equal(@freelancer_page.job_success, random_profile[:job_success],
                          'Job success comparing')
-    Asserts.assert_true('Check that searched profile description includes into profile description') do
+    Asserts.assert_true("Full description: '#{@freelancer_page.description.text}', short description '#{random_profile_description}'") do
       @freelancer_page.description.text.include? random_profile_description
     end
     unless full_profile_profiles_list.empty? && random_profile[:specialization_line].empty?
